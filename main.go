@@ -1,57 +1,59 @@
 package main
 
 import (
-	"fmt"
-	"github.com/bwmarrin/discordgo"
+	"log"
 	"os"
 	"os/signal"
-	"syscall"
+
+	dg "github.com/bwmarrin/discordgo"
+	_ "github.com/joho/godotenv/autoload"
+	"github.com/mccune1224/Sol-Ring/commands"
 )
 
-func main() {
-	// Create a new session using the DISCORD_TOKEN environment variable from Railway
-	dg, err := discordgo.New("Bot " + os.Getenv("DISCORD_TOKEN"))
+// Create Bot Session
+var (
+	discordBot *dg.Session
+)
+
+func init() {
+	var err error
+	token := os.Getenv("DISCORD_TOKEN")
+	discordBot, err = dg.New("Bot " + token)
 	if err != nil {
-		fmt.Printf("Error while starting bot: %s", err)
-		return
+		log.Fatal(err.Error())
 	}
-
-	// Add the message handler
-	dg.AddHandler(messageCreate)
-
-	// Add the Guild Messages intent
-	dg.Identify.Intents = discordgo.IntentsGuildMessages
-
-	// Connect to the gateway
-	err = dg.Open()
-	if err != nil {
-		fmt.Printf("Error while connecting to gateway: %s", err)
-		return
-	}
-
-	// Wait until Ctrl+C or another signal is received
-	fmt.Println("The bot is now running. Press Ctrl+C to exit.")
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-	<-sc
-
-	// Close the Discord session
-	dg.Close()
 }
 
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	// Don't proceed if the message author is a bot
-	if m.Author.Bot {
-		return
-	}
+// Create Command Handler and Register Slash Commands
+var SlashCommandManager *commands.SCM
 
-	if m.Content == "ping" {
-		s.ChannelMessageSend(m.ChannelID, "Pong 🏓")
-		return
-	}
+func init() {
+	SlashCommandManager = commands.NewSCM()
+	SlashCommandManager.AddCommand(commands.Ping)
+	SlashCommandManager.AddCommand(commands.CardLookup)
+	// Create handler for interactionCreation (required for Responding to slash commands)
+	discordBot.AddHandler(func(s *dg.Session, i *dg.InteractionCreate) {
+		log.Print(i.ApplicationCommandData().Name)
+		if cmd, ok := SlashCommandManager.SlashCommands[i.ApplicationCommandData().Name]; ok {
+			cmd.Handler(s, i)
+		}
+	})
+}
 
-	if m.Content == "hello" {
-		s.ChannelMessageSend(m.ChannelID, "Choo choo! 🚅")
-		return
+// Create Websocket Connection, Register Commands, and run until signal close
+func main() {
+	var err error
+
+	err = discordBot.Open()
+	if err != nil {
+		log.Fatal(err.Error())
 	}
+	regCommandTally := SlashCommandManager.RegisterCommands(discordBot)
+	log.Printf("Successfully registered %d/%d commands", len(SlashCommandManager.SlashCommands), regCommandTally)
+	defer discordBot.Close()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt)
+	log.Printf("%s Listening for Commands", discordBot.State.User.Username)
+	<-stop
 }
