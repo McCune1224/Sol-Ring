@@ -5,7 +5,7 @@ import (
 	"log"
 
 	dg "github.com/bwmarrin/discordgo"
-	mtg "github.com/mccune1224/Sol-Ring/mtg"
+	mtg "github.com/mccune1224/Sol-Ring/pkg/mtg"
 )
 
 var CardLookup = SlashCommand{

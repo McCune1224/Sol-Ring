@@ -7,7 +7,7 @@ import (
 
 	dg "github.com/bwmarrin/discordgo"
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/mccune1224/Sol-Ring/commands"
+	"github.com/mccune1224/Sol-Ring/pkg/commands"
 )
 
 // Create Bot Session
