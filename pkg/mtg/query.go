@@ -5,28 +5,22 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
 )
 
 const (
-	BASE_URL  = "https://api.magicthegathering.io/v1/"
-	CARDS_URL = BASE_URL + "cards"
+	BASE_URL = "https://api.scryfall.com"
+
+	SEARCH_URL = BASE_URL + "/cards/search"
 )
 
-func CardRequest(name string, pageSize ...int) (*[]Card, error) {
-	// Default to 1 if no pageSize is provided or if pageSize is over 100
-	if len(pageSize) == 0 || pageSize[0] < 100 {
-		pageSize = append(pageSize, 1)
-	}
-
+func CardSearch(name string) (*[]Card, error) {
 	// Create URL query params
 	v := url.Values{}
-	v.Set("name", name)
-	strPageSize := strconv.Itoa(pageSize[0])
-	v.Set("pageSize", strPageSize)
+	// Card to search for
+	v.Set("q", name)
 
 	// Append query params to URL with '?' prefix
-	queryURL := CARDS_URL + "?" + v.Encode()
+	queryURL := SEARCH_URL + "?" + v.Encode()
 
 	// Create HTTP GET request to queryURL
 	resp, err := http.Get(queryURL)
@@ -41,7 +35,7 @@ func CardRequest(name string, pageSize ...int) (*[]Card, error) {
 		return nil, err
 	}
 
-	var cardResponse CardResponse
+	var cardResponse ScryFallCardQueryResponse
 	err = json.Unmarshal(body, &cardResponse)
 	if err != nil {
 		return nil, err

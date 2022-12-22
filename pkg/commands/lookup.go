@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"encoding/json"
+	"fmt"
 	"log"
 
 	dg "github.com/bwmarrin/discordgo"
@@ -24,16 +24,44 @@ var CardLookup = SlashCommand{
 	Handler: func(s *dg.Session, i *dg.InteractionCreate) {
 		cardName := i.ApplicationCommandData().Options[0].StringValue()
 
-		cardResponse, err := mtg.CardRequest(cardName)
+		cardResponse, err := mtg.CardSearch(cardName)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		foo, err := json.Marshal(cardResponse)
-		if err != nil {
-			SendChannelMessage(s, i, "Error Marshalling Card Response")
+		if len(*cardResponse) == 0 {
+			SendChannelMessage(s, i, fmt.Sprintf("No Cards Found for Query '%s'", cardName))
+			return
+		}
+		bestMatch := mtg.Card{}
+		for _, item := range *cardResponse {
+			bestMatch = item
+			break
+		}
+		for _, item := range *cardResponse {
+			if item.Name == cardName {
+				bestMatch = item
+			}
 		}
 
-		SendChannelMessage(s, i, string(foo))
+		embed := &dg.MessageEmbed{
+			Title: bestMatch.Name,
+			URL:   bestMatch.ScryfallURI,
+			// Description: fmt.Sprintf("%s %s", bestMatch.Rarity, bestMatch.ReleasedAt),
+			Image: &dg.MessageEmbedImage{
+				URL: bestMatch.ImageUris.Normal,
+			},
+			Fields: []*dg.MessageEmbedField{
+				{
+					Name:  "Price",
+					Value: fmt.Sprintf(" [$%s - Tcgplayer](%s)", bestMatch.Prices.Usd, bestMatch.PurchaseUris.Tcgplayer),
+				},
+			},
+
+			Footer: &dg.MessageEmbedFooter{},
+		}
+
+		// SendChannelMessage(s, i, cardDetails)
+		SendChannelEmbed(s, i, embed)
 	},
 }

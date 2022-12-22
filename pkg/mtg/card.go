@@ -1,63 +1,135 @@
 package mtg
 
-type Rulings []struct {
-	Date string `json:"date"`
-	Text string `json:"text"`
+type ScryFallCardQueryResponse struct {
+	Object     string  `json:"object"`
+	TotalCards int     `json:"total_cards"`
+	HasMore    bool    `json:"has_more"`
+	Cards      *[]Card `json:"data"`
 }
 
-type ForeignNames []struct {
-	Name         string      `json:"name"`
-	Text         string      `json:"text"`
-	Type         string      `json:"type"`
-	Flavor       interface{} `json:"flavor"`
-	ImageURL     string      `json:"imageUrl"`
-	Language     string      `json:"language"`
-	Multiverseid int         `json:"multiverseid"`
-}
-
-type Legalities []struct {
-	Format   string `json:"format"`
-	Legality string `json:"legality"`
-}
-
-// Card Represents the content structure of a 200 response MTG API '/card' endpoint
 type Card struct {
-	Name          string       `json:"name"`
-	ManaCost      string       `json:"manaCost,omitempty"`
-	Cmc           float64      `json:"cmc"`
-	Colors        []string     `json:"colors,omitempty"`
-	ColorIdentity []string     `json:"colorIdentity,omitempty"`
-	Type          string       `json:"type"`
-	Supertypes    []string     `json:"supertypes,omitempty"`
-	Types         []string     `json:"types"`
-	Subtypes      []string     `json:"subtypes,omitempty"`
-	Rarity        string       `json:"rarity"`
-	Set           string       `json:"set"`
-	SetName       string       `json:"setName"`
-	Text          string       `json:"text"`
-	Artist        string       `json:"artist"`
-	Number        string       `json:"number"`
-	Power         string       `json:"power,omitempty"`
-	Toughness     string       `json:"toughness,omitempty"`
-	Layout        string       `json:"layout"`
-	Multiverseid  string       `json:"multiverseid,omitempty"`
-	ImageURL      string       `json:"imageUrl,omitempty"`
-	Rulings       Rulings      `json:"rulings,omitempty"`
-	ForeignNames  ForeignNames `json:"foreignNames,omitempty"`
-	Printings     []string     `json:"printings"`
-	OriginalText  string       `json:"originalText,omitempty"`
-	OriginalType  string       `json:"originalType,omitempty"`
-	Legalities    Legalities   `json:"legalities,omitempty"`
-	ID            string       `json:"id"`
-	Watermark     string       `json:"watermark,omitempty"`
-	Flavor        string       `json:"flavor,omitempty"`
-	Hand          string       `json:"hand,omitempty"`
-	Life          string       `json:"life,omitempty"`
-	Variations    []string     `json:"variations,omitempty"`
+	Object        string `json:"object"`
+	ID            string `json:"id"`
+	OracleID      string `json:"oracle_id"`
+	MultiverseIds []int  `json:"multiverse_ids"`
+	MtgoID        int    `json:"mtgo_id"`
+	TcgplayerID   int    `json:"tcgplayer_id"`
+	CardmarketID  int    `json:"cardmarket_id"`
+	Name          string `json:"name"`
+	Lang          string `json:"lang"`
+	ReleasedAt    string `json:"released_at"`
+	URI           string `json:"uri"`
+	ScryfallURI   string `json:"scryfall_uri"`
+	Layout        string `json:"layout"`
+	HighresImage  bool   `json:"highres_image"`
+	ImageStatus   string `json:"image_status"`
+	ImageUris     struct {
+		Small      string `json:"small"`
+		Normal     string `json:"normal"`
+		Large      string `json:"large"`
+		Png        string `json:"png"`
+		ArtCrop    string `json:"art_crop"`
+		BorderCrop string `json:"border_crop"`
+	} `json:"image_uris"`
+	ManaCost      string   `json:"mana_cost"`
+	Cmc           float64  `json:"cmc"`
+	TypeLine      string   `json:"type_line"`
+	OracleText    string   `json:"oracle_text"`
+	Power         string   `json:"power"`
+	Toughness     string   `json:"toughness"`
+	Colors        []string `json:"colors"`
+	ColorIdentity []string `json:"color_identity"`
+	Keywords      []string `json:"keywords"`
+	AllParts      []struct {
+		Object    string `json:"object"`
+		ID        string `json:"id"`
+		Component string `json:"component"`
+		Name      string `json:"name"`
+		TypeLine  string `json:"type_line"`
+		URI       string `json:"uri"`
+	} `json:"all_parts,omitempty"`
+	Legalities struct {
+		Standard        string `json:"standard"`
+		Future          string `json:"future"`
+		Historic        string `json:"historic"`
+		Gladiator       string `json:"gladiator"`
+		Pioneer         string `json:"pioneer"`
+		Explorer        string `json:"explorer"`
+		Modern          string `json:"modern"`
+		Legacy          string `json:"legacy"`
+		Pauper          string `json:"pauper"`
+		Vintage         string `json:"vintage"`
+		Penny           string `json:"penny"`
+		Commander       string `json:"commander"`
+		Brawl           string `json:"brawl"`
+		Historicbrawl   string `json:"historicbrawl"`
+		Alchemy         string `json:"alchemy"`
+		Paupercommander string `json:"paupercommander"`
+		Duel            string `json:"duel"`
+		Oldschool       string `json:"oldschool"`
+		Premodern       string `json:"premodern"`
+	} `json:"legalities"`
+	Games           []string `json:"games"`
+	Reserved        bool     `json:"reserved"`
+	Foil            bool     `json:"foil"`
+	Nonfoil         bool     `json:"nonfoil"`
+	Finishes        []string `json:"finishes"`
+	Oversized       bool     `json:"oversized"`
+	Promo           bool     `json:"promo"`
+	Reprint         bool     `json:"reprint"`
+	Variation       bool     `json:"variation"`
+	SetID           string   `json:"set_id"`
+	Set             string   `json:"set"`
+	SetName         string   `json:"set_name"`
+	SetType         string   `json:"set_type"`
+	SetURI          string   `json:"set_uri"`
+	SetSearchURI    string   `json:"set_search_uri"`
+	ScryfallSetURI  string   `json:"scryfall_set_uri"`
+	RulingsURI      string   `json:"rulings_uri"`
+	PrintsSearchURI string   `json:"prints_search_uri"`
+	CollectorNumber string   `json:"collector_number"`
+	Digital         bool     `json:"digital"`
+	Rarity          string   `json:"rarity"`
+	CardBackID      string   `json:"card_back_id"`
+	Artist          string   `json:"artist"`
+	ArtistIds       []string `json:"artist_ids"`
+	IllustrationID  string   `json:"illustration_id"`
+	BorderColor     string   `json:"border_color"`
+	Frame           string   `json:"frame"`
+	FrameEffects    []string `json:"frame_effects,omitempty"`
+	SecurityStamp   string   `json:"security_stamp,omitempty"`
+	FullArt         bool     `json:"full_art"`
+	Textless        bool     `json:"textless"`
+	Booster         bool     `json:"booster"`
+	StorySpotlight  bool     `json:"story_spotlight"`
+	EdhrecRank      int      `json:"edhrec_rank"`
+	PennyRank       int      `json:"penny_rank"`
+	Prices          struct {
+		Usd       string      `json:"usd"`
+		UsdFoil   interface{} `json:"usd_foil"`
+		UsdEtched interface{} `json:"usd_etched"`
+		Eur       string      `json:"eur"`
+		EurFoil   interface{} `json:"eur_foil"`
+		Tix       interface{} `json:"tix"`
+	} `json:"prices"`
+	RelatedUris struct {
+		Gatherer                  string `json:"gatherer"`
+		TcgplayerInfiniteArticles string `json:"tcgplayer_infinite_articles"`
+		TcgplayerInfiniteDecks    string `json:"tcgplayer_infinite_decks"`
+		Edhrec                    string `json:"edhrec"`
+	} `json:"related_uris"`
+	PurchaseUris struct {
+		Tcgplayer   string `json:"tcgplayer"`
+		Cardmarket  string `json:"cardmarket"`
+		Cardhoarder string `json:"cardhoarder"`
+	} `json:"purchase_uris"`
+	ArenaID    int    `json:"arena_id,omitempty"`
+	Watermark  string `json:"watermark,omitempty"`
+	FlavorText string `json:"flavor_text,omitempty"`
+	Preview    struct {
+		Source      string `json:"source"`
+		SourceURI   string `json:"source_uri"`
+		PreviewedAt string `json:"previewed_at"`
+	} `json:"preview,omitempty"`
+	MtgoFoilID int `json:"mtgo_foil_id,omitempty"`
 }
-
-type CardResponse struct {
-	Cards *[]Card `json:"cards"`
-}
-
-// Response from MTG API is always a list of card object, even if only 1 card is queried

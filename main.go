@@ -25,18 +25,22 @@ func init() {
 }
 
 // Create Command Handler and Register Slash Commands
-var SlashCommandManager *commands.SCM
+var SCM *commands.SlashCommandManager
 
 func init() {
-	SlashCommandManager = commands.NewSCM()
-	SlashCommandManager.AddCommand(commands.Ping)
-	SlashCommandManager.AddCommand(commands.CardLookup)
-	// Create handler for interactionCreation (required for Responding to slash commands)
+	SCM = commands.NewSlashCommandManager()
+	SCM.AddCommand(commands.Ping)
+	SCM.AddCommand(commands.CardLookup)
+	// Create handlers for interactionCreation Commands (Message & Componetns)
 	discordBot.AddHandler(func(s *dg.Session, i *dg.InteractionCreate) {
-		log.Print(i.ApplicationCommandData().Name)
-		if cmd, ok := SlashCommandManager.SlashCommands[i.ApplicationCommandData().Name]; ok {
+        switch i.Type{
+        case dg.InteractionApplicationCommand:
+    }
+
+		if cmd, ok := SCM.SlashCommands[i.ApplicationCommandData().Name]; ok {
 			cmd.Handler(s, i)
 		}
+
 	})
 }
 
@@ -48,8 +52,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	regCommandTally := SlashCommandManager.RegisterCommands(discordBot)
-	log.Printf("Successfully registered %d/%d commands", len(SlashCommandManager.SlashCommands), regCommandTally)
+	regCommandTally := SCM.RegisterCommands(discordBot)
+	log.Printf("Successfully registered %d/%d commands", len(SCM.SlashCommands), regCommandTally)
 	defer discordBot.Close()
 
 	stop := make(chan os.Signal, 1)
